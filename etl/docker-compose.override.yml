@@ -1,0 +1,45 @@
+version: '3'
+services:
+
+  db-movie:
+    volumes:
+      - dev-pg-db-movie:/var/lib/postgresql/data
+    ports:
+      - "35432:5432"
+    restart: unless-stopped
+
+  app-movie:
+    build:
+      target: dev
+    env_file: .env.dev
+    volumes:
+      - ./app:/app
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  swagger-eidtor:
+    image: swaggerapi/swagger-editor
+    ports:
+      - "8007:8080"
+
+  es01:
+    environment:
+      - node.name=es01
+      - cluster.name=es-docker-cluster
+      - bootstrap.memory_lock=true
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    volumes:
+      - dev-es-data01:/usr/share/elasticsearch/data
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+  pg_to_es:
+    env_file: .env.dev
+
+volumes:
+  dev-pg-db-movie:
+  dev-es-data01:

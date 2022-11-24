@@ -1,0 +1,33 @@
+version: '3'
+services:
+
+  db-movie:
+    container_name: db-movie
+    build: db
+    environment:
+      POSTGRES_DB: ${PG_DB_NAME}
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+
+  app-movie:
+    container_name: app-movie
+    build:
+      context: app
+      args:
+        appuser: ${APP_USER}
+    depends_on:
+      - db-movie
+
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.7.0
+    depends_on:
+      - db-movie
+    ports:
+      - "9200:9200"
+
+  pg_to_es:
+    container_name: etl-movie
+    build:
+      context: pg_to_es
+    depends_on:
+      - es01
