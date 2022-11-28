@@ -31,3 +31,10 @@ services:
       context: pg_to_es
     depends_on:
       - es01
+
+  redis:
+    image: redis:7
+    restart: always
+    container_name: redis
+    hostname: redis
+    command: redis-server

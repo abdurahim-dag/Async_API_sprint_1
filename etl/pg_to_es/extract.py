@@ -36,7 +36,7 @@ class PostgresExtractor:
         ) as conn:
             with closing(conn.cursor()) as curs:
 
-                state = self.state.get_state('extract')
+                state = self.state.get_state()
 
                 sql = open(self.settings.sql_file, encoding='utf-8').read()
                 sql = sql.format(
@@ -58,7 +58,7 @@ class PostgresExtractor:
 
                     # Сохраняем каждый выполненный шаг.
                     state.step += 1
-                    self.state.set_state('extract', state)
+                    self.state.set_state(state)
                     logger.info("Extracted file %s", file_name)
 
                 # Сохраним step < 0.
@@ -66,4 +66,4 @@ class PostgresExtractor:
                 # И следующий запуск начнётся со вчерашней даты.
                 state.step = -1
                 state.date_from = state.date_to
-                self.state.set_state('extract', state)
+                self.state.set_state(state)
