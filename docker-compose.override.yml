@@ -19,6 +19,7 @@ services:
     restart: unless-stopped
 
   swagger-eidtor:
+    container_name: swagger
     image: swaggerapi/swagger-editor
     ports:
       - "8007:8080"
@@ -39,6 +40,17 @@ services:
 
   pg_to_es:
     env_file: .env.dev
+
+  fastapi:
+    build:
+      target: dev
+    volumes:
+      - ./fastapi-solution:/app
+    env_file: .env.dev
+    expose:
+      - "8080:8000"
+    restart: always
+
 
 volumes:
   dev-pg-db-movie:

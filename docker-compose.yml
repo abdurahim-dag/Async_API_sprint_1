@@ -20,6 +20,7 @@ services:
 
   es01:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.7.0
+    container_name: es01
     depends_on:
       - db-movie
     ports:
@@ -29,5 +30,14 @@ services:
     container_name: etl-movie
     build:
       context: pg_to_es
+    depends_on:
+      - es01
+
+  fastapi:
+    container_name: fastapi
+    build:
+      context: fastapi-solution
+      args:
+        appuser: ${APP_IO_USER}
     depends_on:
       - es01

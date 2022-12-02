@@ -50,6 +50,15 @@ services:
   pg_to_es:
     env_file: .env.prod
 
+  fastapi:
+    build:
+      target: prod
+    env_file: .env.prod
+    expose:
+      - "8080:80"
+    restart: always
+
+
 volumes:
   pg-data-movie:
   app-static:
