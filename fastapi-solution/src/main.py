@@ -6,6 +6,7 @@ from fastapi.responses import ORJSONResponse
 
 from core import config
 from core.logger import LOGGING
+from api.v1 import films
 
 
 app = FastAPI(

@@ -45,7 +45,7 @@ services:
     build:
       target: dev
     volumes:
-      - ./fastapi-solution:/app
+      - ./fastapi-solution/src:/app
     env_file: .env.dev
     expose:
       - "8080:8000"

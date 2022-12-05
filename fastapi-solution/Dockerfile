@@ -13,7 +13,7 @@ USER $appuser
 
 FROM base as prod
 
-COPY . .
+COPY ./src .
 
 CMD [ "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
 
