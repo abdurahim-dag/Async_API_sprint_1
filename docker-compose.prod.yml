@@ -58,6 +58,9 @@ services:
       - "8080"
     restart: always
 
+  redis:
+    expose:
+      - "6379"
 
 volumes:
   pg-data-movie:

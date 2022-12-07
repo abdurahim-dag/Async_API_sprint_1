@@ -1,7 +1,8 @@
 import os
 from pathlib import Path, PurePath
 
-from models import (Environments, ExtractSettings, LoadSettings, TransformSettings)
+from models import (Environments, ExtractSettings, LoadSettings, TransformSettings,
+                    Movie, Genre)
 
 
 class Config:
@@ -9,6 +10,10 @@ class Config:
     def __init__(
             self,
             environments: Environments,
+            es_index,
+            es_schema_file_name,
+            sql_extract_file_name,
+            model
     ):
         # Settings for PostgresExtractor.
         pg_conn_params = {
@@ -23,7 +28,7 @@ class Config:
         pg_extract_dir = environments.extract_data_dir
         pg_extract_path = Path(pg_extract_dir)
         sql_dir = environments.sql_dir
-        sql_extract_file_name = environments.sql_extract_file_name
+
         if not pg_extract_path.exists():
             os.mkdir(pg_extract_dir)
         sql_path = Path(
@@ -50,12 +55,12 @@ class Config:
         es_host = environments.es_host
         es_port = environments.es_port
         es_conn_str = f"http://{es_host}:{es_port}"
-        es_index = environments.es_index
+
         es_settings_dir = environments.es_settings_path
         es_settings_path = Path(es_settings_dir)
         if not es_settings_path.exists():
             raise FileExistsError(f"ES SETTINGS DIR NOT EXISTS")
-        es_schema_file_name = environments.es_schema_file
+
         es_schema_file_path = Path(
             PurePath(
                 es_settings_path,
@@ -76,6 +81,7 @@ class Config:
             transform_path=transform_path,
             extract_path=pg_extract_path,
             index_name=es_index,
+            model=mode,
         )
         self.load_settings = LoadSettings(
             conn_str=es_conn_str,

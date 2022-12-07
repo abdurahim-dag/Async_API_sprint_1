@@ -47,5 +47,3 @@ services:
     container_name: redis
     hostname: redis
     command: redis-server
-    expose:
-      - "6379"

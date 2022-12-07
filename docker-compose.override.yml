@@ -51,6 +51,9 @@ services:
       - "8080:8000"
     restart: always
 
+  redis:
+    ports:
+      - "6379:6379"
 
 volumes:
   dev-pg-db-movie:
