@@ -40,6 +40,8 @@ services:
       - bootstrap.memory_lock=true
       - discovery.type=single-node
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    expose:
+      - "9200"
     volumes:
       - es-data01:/usr/share/elasticsearch/data
     ulimits:

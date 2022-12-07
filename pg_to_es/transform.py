@@ -8,7 +8,6 @@ from models import ESIndex, ESIndexLine, TransformSettings
 from utils import UUIDEncoder
 
 
-
 class DataTransform:
 
     def __init__(
@@ -30,6 +29,7 @@ class DataTransform:
                     # Чекаем данные по модели.
                     model = self.settings.model(**row[0])
                     models.append(model)
+                # Если ошибка, то значит не соответствует модели.
                 except Exception as err:
                     logger.info("Error on check transform file %s", src_file)
                     raise err

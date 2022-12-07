@@ -21,7 +21,6 @@ class EtlProcessing:
             load_settings: LoadSettings,
             transform_settings: TransformSettings,
             state_key: str,
-            model: Movie | Genre,
     ):
 
         self._check_run_status()
@@ -33,8 +32,6 @@ class EtlProcessing:
 
         self.state = state
         self.state_key = state_key
-
-        self.model = model
 
     def _set_run_status(self):
         """Set flag started etl process."""

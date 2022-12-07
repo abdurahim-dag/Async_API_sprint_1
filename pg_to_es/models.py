@@ -9,6 +9,7 @@ from pydantic import (
     validator,
     BaseSettings,
 )
+from typing import Any
 
 # TODO: ADD PostgresDsn
 
@@ -72,7 +73,7 @@ class TransformSettings(BaseModel):
     transform_path: Path
     extract_path: Path
     index_name: str
-    model: Movie | Genre
+    model: Any
 
 
 class LoadSettings(BaseModel):

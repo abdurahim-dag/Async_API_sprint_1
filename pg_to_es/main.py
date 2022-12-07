@@ -1,6 +1,6 @@
 from models import Environments, Movie, Genre
 from storage.json import JsonFileStorage
-from .etl import EtlProcessing
+from etl import EtlProcessing
 from config import Config
 from state import State
 from logger import logger
@@ -24,9 +24,9 @@ if __name__ == '__main__':
     }
     storage = JsonFileStorage('common/state.json')
 
-    envs = Environments(_env_file='.env.edv', _env_file_encoding='utf-8')
+    envs = Environments(_env_file='.env.dev', _env_file_encoding='utf-8')
 
-    for sql_file_name, etl_target in etl_targets:
+    for sql_file_name, etl_target in etl_targets.items():
 
         config = Config(
             environments=envs,
@@ -37,24 +37,20 @@ if __name__ == '__main__':
 
         )
 
-
         state = State(
             storage=storage,
-            key=envs.sql_extract_file_name,
+            key=sql_file_name,
         )
 
-        logger.info(f"Etl for {envs.sql_extract_file_name} started!")
-
-
-        model=models[envs.sql_extract_file_name],
+        logger.info(f"Etl for % started!", sql_file_name)
 
         etl = EtlProcessing(
             extract_settings=config.extract_settings,
             load_settings=config.load_settings,
             transform_settings=config.transform_settings,
             state=state,
-            state_key=envs.sql_extract_file_name,
+            state_key=sql_file_name,
         )
         etl.main()
 
-        logger.info(f"Etl for {envs.sql_extract_file_name} finished!")
+        logger.info(f"Etl for %s finished!", sql_file_name)

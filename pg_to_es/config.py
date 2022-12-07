@@ -81,7 +81,7 @@ class Config:
             transform_path=transform_path,
             extract_path=pg_extract_path,
             index_name=es_index,
-            model=mode,
+            model=model,
         )
         self.load_settings = LoadSettings(
             conn_str=es_conn_str,
