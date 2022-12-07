@@ -23,8 +23,8 @@ services:
     container_name: es01
     depends_on:
       - db-movie
-    ports:
-      - "9200:9200"
+    expose:
+      - "9200"
 
   pg_to_es:
     container_name: etl-movie
@@ -41,3 +41,11 @@ services:
         appuser: ${APP_IO_USER}
     depends_on:
       - es01
+
+  redis:
+    image: redis
+    container_name: redis
+    hostname: redis
+    command: redis-server
+    expose:
+      - "6379"

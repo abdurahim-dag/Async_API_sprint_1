@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
+from services.cache import cache
 
 # Объект router, в котором регистрируем обработчики
 router = APIRouter()
@@ -21,5 +22,6 @@ class Film(BaseModel):
 # В сигнатуре функции указываем тип данных, получаемый из адреса запроса (film_id: str)
 # И указываем тип возвращаемого объекта — Film
 @router.get('/{film_id}', response_model=Film)
+@cache()
 async def film_details(film_id: str) -> Film:
     return Film(id='some_id', title='some_title')

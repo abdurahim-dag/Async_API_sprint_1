@@ -47,7 +47,7 @@ services:
     volumes:
       - ./fastapi-solution/src:/app
     env_file: .env.dev
-    expose:
+    ports:
       - "8080:8000"
     restart: always
 

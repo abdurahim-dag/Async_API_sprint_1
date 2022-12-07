@@ -1,5 +1,5 @@
 import logging
-
+import aioredis
 import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
@@ -7,6 +7,7 @@ from fastapi.responses import ORJSONResponse
 from core import config
 from core.logger import LOGGING
 from api.v1 import films
+import db.redis as redis
 
 
 app = FastAPI(
@@ -24,15 +25,16 @@ app = FastAPI(
 
 @app.on_event('startup')
 async def startup():
-    redis.redis = await aioredis.create_redis_pool((config.REDIS_HOST, config.REDIS_PORT), minsize=10, maxsize=20)
-    elastic.es = AsyncElasticsearch(hosts=[f'{config.ELASTIC_HOST}:{config.ELASTIC_PORT}'])
+    url = f"redis://{config.REDIS_HOST}:{config.REDIS_PORT}"
+    redis.redis = await aioredis.from_url(url,  db=1)
+    # elastic.es = AsyncElasticsearch(hosts=[f'{config.ELASTIC_HOST}:{config.ELASTIC_PORT}'])
 
 
 @app.on_event('shutdown')
 async def shutdown():
     redis.redis.close()
     await redis.redis.wait_closed()
-    await elastic.es.close()
+    # await elastic.es.close()
 
 
 # Подключаем роутер к серверу, указав префикс /v1/films
