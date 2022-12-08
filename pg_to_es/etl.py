@@ -77,7 +77,6 @@ class EtlProcessing:
         trancformer.transform()
 
     def load(self):
-        self._init_state_step()
         load = Load(
             self.load_settings,
         )

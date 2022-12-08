@@ -40,8 +40,6 @@ services:
       - bootstrap.memory_lock=true
       - discovery.type=single-node
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    expose:
-      - "9200"
     volumes:
       - es-data01:/usr/share/elasticsearch/data
     ulimits:
@@ -57,12 +55,9 @@ services:
       target: prod
     env_file: .env.prod
     expose:
-      - "8080"
+      - "80"
     restart: always
 
-  redis:
-    expose:
-      - "6379"
 
 volumes:
   pg-data-movie:

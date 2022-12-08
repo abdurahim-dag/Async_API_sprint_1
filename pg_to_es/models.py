@@ -16,9 +16,10 @@ from typing import Any
 class UUIDMixin(BaseModel):
     id: UUID
 
-
-class Genre(UUIDMixin):
+class GenreName(UUIDMixin):
     name: str
+
+class Genre(GenreName):
     description: str
 
 
@@ -28,14 +29,17 @@ class Person(UUIDMixin):
 
 class Movie(UUIDMixin):
     imdb_rating: float
-    genre: list[str] | None
+    genre: list[GenreName]
+
     title: str
     description: str | None
-    director: str
-    actors_names: list[str] | None
-    writers_names: list[str] | None
+
+    directors: list[Person]
     actors: list[Person]
     writers: list[Person]
+
+    actors_names: list[str] | None
+    writers_names: list[str] | None
 
     @validator('imdb_rating')
     def name_must_contain_space(cls, v):

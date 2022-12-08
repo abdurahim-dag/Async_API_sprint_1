@@ -23,6 +23,8 @@ services:
     container_name: es01
     depends_on:
       - db-movie
+    expose:
+      - "9200"
 
   pg_to_es:
     container_name: etl-movie
@@ -45,3 +47,5 @@ services:
     container_name: redis
     hostname: redis
     command: redis-server
+    expose:
+      - "6379"

@@ -4,7 +4,10 @@ from uuid import UUID, uuid4
 
 
 class UUIDMixin(BaseModel):
-    uuid: UUID = Field(default_factory=uuid4)
+    #uuid: UUID = Field(default_factory=uuid4)
+    id: UUID = Field(alias='uuid')
+    class Config:
+        allow_population_by_field_name = True
 
 
 def orjson_dumps(v, *, default):
