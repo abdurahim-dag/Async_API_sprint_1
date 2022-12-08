@@ -12,7 +12,7 @@
 
 # Порядок запуска dev (проверено на Windows 10):
 1. docker compose --env-file ./.env.dev up -d --no-deps --build
-2. Если первый запуск, то лучше одной командой в WSL: make windows-dev-post-start.
+2. Если первый запуск, то лучше одной командой в WSL: make windows-dev-post-start
 3. Если надо сразу перенести данные PG в ES, а не ждать события ETL:
    - Войти в терминал docker etl-movie.
    - Запустить ETL в папке(CWD: /app) - /app/run.sh 
