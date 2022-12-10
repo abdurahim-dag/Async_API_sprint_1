@@ -1,5 +1,6 @@
 from pathlib import Path
 from uuid import UUID
+from typing import Any
 
 from pendulum import Date
 from pydantic import (
@@ -8,10 +9,18 @@ from pydantic import (
     validator,
     BaseSettings,
 )
+from typing import Any
 
+# TODO: ADD PostgresDsn
 
 class UUIDMixin(BaseModel):
     id: UUID
+
+class GenreName(UUIDMixin):
+    name: str
+
+class Genre(GenreName):
+    description: str
 
 
 class Person(UUIDMixin):
@@ -19,16 +28,18 @@ class Person(UUIDMixin):
 
 
 class Movie(UUIDMixin):
-
     imdb_rating: float
-    genre: list[str] | None
+    genre: list[GenreName]
+
     title: str
     description: str | None
-    director: str
-    actors_names: list[str] | None
-    writers_names: list[str] | None
+
+    directors: list[Person]
     actors: list[Person]
     writers: list[Person]
+
+    actors_names: list[str] | None
+    writers_names: list[str] | None
 
     @validator('imdb_rating')
     def name_must_contain_space(cls, v):
@@ -66,6 +77,7 @@ class TransformSettings(BaseModel):
     transform_path: Path
     extract_path: Path
     index_name: str
+    model: Any
 
 
 class LoadSettings(BaseModel):
@@ -82,13 +94,19 @@ class Environments(BaseSettings):
     pg_host: str
     pg_port: str
     pg_schema: str
-    batches: str
+    batches: int
     extract_data_dir: str
     sql_dir: str
-    sql_extract_file_name: str
+
     transform_data_dir: str
     es_host: str
     es_port: str
-    es_index: str
+
     es_settings_path: str
-    es_schema_file: str
+
+    class Config:
+        @classmethod
+        def parse_env_var(cls, field_name: str, raw_val: str) -> Any:
+            if field_name in ['sql_extract_file_names','es_indexes', ]:
+                return [x for x in raw_val.split(',')]
+            return cls.json_loads(raw_val)

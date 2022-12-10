@@ -2,4 +2,4 @@
 
 set -e
 cd /app
-python etl.py
+python main.py

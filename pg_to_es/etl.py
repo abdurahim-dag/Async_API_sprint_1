@@ -3,14 +3,10 @@ from pathlib import Path
 
 import pendulum
 
-import state
-from config import Config
+from models import ExtractSettings, LoadSettings, TransformSettings, Movie, Genre
+from state import State
 from extract import PostgresExtractor
 from load import Load
-from logger import logger
-from models import Environments
-from storage.base import BaseStorage
-from storage.json import JsonFileStorage
 from transform import DataTransform
 
 
@@ -20,18 +16,22 @@ class EtlProcessing:
 
     def __init__(
             self,
-            storage: BaseStorage,
-            config: Config,
+            state: State,
+            extract_settings: ExtractSettings,
+            load_settings: LoadSettings,
+            transform_settings: TransformSettings,
+            state_key: str,
     ):
 
         self._check_run_status()
         self._set_run_status()
 
-        self.load_settings = config.load_settings
-        self.extract_settings = config.extract_settings
-        self.transform_settings = config.transform_settings
+        self.load_settings = load_settings
+        self.extract_settings = extract_settings
+        self.transform_settings = transform_settings
 
-        self.state = state.State(storage)
+        self.state = state
+        self.state_key = state_key
 
     def _set_run_status(self):
         """Set flag started etl process."""
@@ -43,17 +43,15 @@ class EtlProcessing:
         if path.exists():
             raise Exception('Параллельно работает такой же процесс!')
 
-    def _init_state_step(self, name: str) -> None:
+    def _init_state_step(self) -> None:
         """ Функция инициализации состояния процесса name.
         Если состояние ранее не сохранялось, то выгружаем всё по вчера.
         Если step < 0, то значит предыдущий этап успешно закончился.
         Тогда, устанавливаем дату выгрузки по вчера.
         Не сбиваем сохранённое состояние, если step > 0!
 
-        Args:
-            name (str): extract key of EtlProcessing
         """
-        state = self.state.get_state(name)
+        state = self.state.get_state()
         if state.step is None:
             state.step = 0
             state.date_from = pendulum.parse('1900-01-01', exact=True)
@@ -61,10 +59,10 @@ class EtlProcessing:
         elif state.step < 0:
             state.step = 0
             state.date_to = pendulum.yesterday('UTC').date()
-        self.state.set_state(name, state)
+        self.state.set_state(state)
 
     def extract(self):
-        self._init_state_step('extract')
+        self._init_state_step()
         extracter = PostgresExtractor(
             settings=self.extract_settings,
             state=self.state,
@@ -72,29 +70,20 @@ class EtlProcessing:
         extracter.extract()
 
     def transform(self):
+        # Передача настроек и трасф-й модели
         trancformer = DataTransform(
             settings=self.transform_settings,
         )
         trancformer.transform()
 
     def load(self):
-        self._init_state_step('load')
         load = Load(
             self.load_settings,
         )
         load.load()
 
     def main(self):
-        logger.info('Started etl')
         self.extract()
         self.transform()
         self.load()
         os.remove(self.file_status)
-
-
-if __name__ == '__main__':
-    etl = EtlProcessing(
-        config=Config(environments=Environments()),
-        storage=JsonFileStorage('common/state.json'),
-    )
-    etl.main()
