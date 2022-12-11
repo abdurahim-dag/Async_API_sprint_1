@@ -1,4 +1,4 @@
-from models import Environments, Movie, Genre
+from models import Environments, Movie, Genre, Person
 from storage.json import JsonFileStorage
 from etl import EtlProcessing
 from config import Config
@@ -19,6 +19,12 @@ if __name__ == '__main__':
             'model': Genre,
             'es_index': 'genres',
             'es_schema_file': 'es_schema_genres.json'
+
+        },
+        'extract_persons.sql': {
+            'model': Person,
+            'es_index': 'persons',
+            'es_schema_file': 'es_schema_persons.json'
 
         },
     }
