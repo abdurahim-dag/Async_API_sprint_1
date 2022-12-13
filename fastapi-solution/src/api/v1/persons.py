@@ -7,6 +7,7 @@ from models import Person
 from services import PersonService, get_person_service, cache
 from services.genre_person import GenrePersons
 
+
 router = APIRouter()
 
 
@@ -14,7 +15,7 @@ class PersonAPI(Person):
     pass
 
 
-@router.get('/{person_id}', response_model=Person_PD)
+@router.get('/{person_id}', response_model=Person)
 @cache(60)
 async def person_details(person_id: UUID, person_service: GenrePersons = Depends(get_person_service)) -> PersonAPI:
     person = await person_service.get_by_id(person_id)

@@ -1,20 +1,28 @@
 with persons as (
     select
-        id,
-        created,
-        modified,
-        full_name
-    from {from_schema}.person
+        p.id,
+        p.created,
+        p.modified,
+        p.full_name,
+        pfw.role,
+        json_agg (
+                pfw.film_work_id::text
+            ) as "film_ids"
+    from content.person p
+             inner join content.person_film_work pfw on pfw.person_id = p.id
+    group by
+        p.id,
+        p.created,
+        p.modified,
+        p.full_name,
+        pfw.role
+    order by p.id
 )
+
 select
     json_build_object('id', p.id,
-                      'name', coalesce(p.full_name, '')
-
+                      'full_name', p.full_name,
+                      'role', p.role,
+                      'film_ids', coalesce(p.film_ids,'[]')
         ) as "xyz"
-from person p
-where
-    (p.modified > '{date_from}' or p.created > '{date_from}')
-  and
-    (p.modified <= '{date_to}' or p.created <= '{date_to}')
-order by p.id
-offset {offset};
+from persons p

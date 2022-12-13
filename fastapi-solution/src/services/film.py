@@ -6,12 +6,12 @@ from fastapi import Depends
 
 from db.elastic import get_elastic
 from db.redis import get_redis
-from models import Film
+from models import FilmDetail
 from services.utils import Service
 
 
 class FilmService(Service):
-    model = Film
+    model = FilmDetail
 
 
 @lru_cache()

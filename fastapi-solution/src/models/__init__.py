@@ -1,3 +1,3 @@
-from .film import Film, FilmMixin
+from .film import FilmDetail, FilmSearch
 from .genre import Genre
 from .person import Person

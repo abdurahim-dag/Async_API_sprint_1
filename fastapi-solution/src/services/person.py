@@ -8,7 +8,7 @@ from db.elastic import get_elastic
 from db.redis import get_redis
 from models import Person
 from services.utils import Service
-from services.genre_person import GenrePersons
+
 from models.person import Person_PD
 
 

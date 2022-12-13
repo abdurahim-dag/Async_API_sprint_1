@@ -23,8 +23,14 @@ class Genre(GenreName):
     description: str
 
 
-class Person(UUIDMixin):
+class PersonName(UUIDMixin):
     name: str
+
+
+class Person(UUIDMixin):
+    full_name: str
+    role: str
+    film_ids: list[str] | None
 
 
 class Movie(UUIDMixin):
@@ -34,9 +40,9 @@ class Movie(UUIDMixin):
     title: str
     description: str | None
 
-    directors: list[Person]
-    actors: list[Person]
-    writers: list[Person]
+    directors: list[PersonName]
+    actors: list[PersonName]
+    writers: list[PersonName]
 
     actors_names: list[str] | None
     writers_names: list[str] | None

@@ -45,25 +45,16 @@
       "id": {
         "type": "keyword"
       },
-      "name": {
+      "full_name": {
         "type": "text"
       },
-      "roles": {
-        "type": "nested",
-        "dynamic": "strict",
-        "properties": {
-          "film_work_id": {
-            "type": "keyword"
-          },
-          "film_work": {
-            "type": "text",
-            "analyzer": "ru_en"
-          },
-          "role": {
-            "type": "text",
-            "analyzer": "ru_en"
-          }
-        }
+      "role": {
+        "type": "text",
+        "analyzer": "ru_en"
+      },
+      "film_ids": {
+        "type": "text",
+        "analyzer": "ru_en"
       }
     }
   }

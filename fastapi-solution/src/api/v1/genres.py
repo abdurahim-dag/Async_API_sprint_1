@@ -13,8 +13,8 @@ class GenreAPI(Genre):
     pass
 
 
-@router.get('/{genre_id}', response_model=GenreAPI)
-async def genre_details(genre_id: UUID, genre_service: GenrePersons = Depends(get_genre_service)) -> GenreAPI:
+@router.get('/{genre_id}', response_model=Genre)
+async def genre_details(genre_id: UUID, genre_service: GenrePersons = Depends(get_genre_service)) -> Genre:
     genre = await genre_service.get_by_id(genre_id)
     if not genre:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='genre not found')

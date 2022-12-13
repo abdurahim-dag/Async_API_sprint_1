@@ -3,9 +3,11 @@ from models.person import PersonName
 from models.config import UUIDMixin, OrjsonConfigMixin
 
 
-class FilmMixin(UUIDMixin):
+class FilmSearchMixin(UUIDMixin):
     title: str
     imdb_rating: float
+
+class FilmDetailMixin(FilmSearchMixin):
     description: str = ''
     actor_names: list[str] = []
     writer_names: list[str] = []
@@ -15,7 +17,8 @@ class FilmMixin(UUIDMixin):
     directors: list[PersonName] = []
 
 
+class FilmDetail(FilmDetailMixin, OrjsonConfigMixin):
+    pass
 
-
-class Film(FilmMixin, OrjsonConfigMixin):
+class FilmSearch(FilmSearchMixin, OrjsonConfigMixin):
     pass
