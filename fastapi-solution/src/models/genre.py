@@ -1,5 +1,10 @@
-from models.config import OrjsonConfigMixin, UUIDMixin
+from models.config import UUIDMixin, OrjsonConfigMixin
 
 
 class Genre(UUIDMixin, OrjsonConfigMixin):
     name: str
+
+
+class GenreDetail(Genre):
+    description: str | None = ''
+

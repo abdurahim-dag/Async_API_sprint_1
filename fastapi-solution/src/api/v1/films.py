@@ -9,9 +9,10 @@ from services import FilmService, get_film_service, cache
 
 router = APIRouter()
 
+
 @router.get('/', response_model=list[Film])
 @cache(6)
-async def film_list_details(
+async def film_list(
         film_service: FilmService = Depends(get_film_service),
         common_params: FilmParams = Depends()
 ) -> list[Film]:
@@ -20,7 +21,7 @@ async def film_list_details(
 
 @router.get('/search', response_model=list[Film])
 @cache(6)
-async def film_list_details(
+async def film_list_search(
         film_service: FilmService = Depends(get_film_service),
         common_params: FilmParams = Depends()
 ) -> list[Film]:
@@ -34,4 +35,4 @@ async def film_details(film_id: UUID, film_service: FilmService = Depends(get_fi
     film = await film_service.get_by_id(film_id)
     if not film:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='film not found')
-    return FilmDetail(**film.dict())
+    return film

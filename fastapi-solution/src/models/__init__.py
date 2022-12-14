@@ -1,3 +1,3 @@
 from .film import FilmDetail, Film
-from .genre import Genre
-from .person import Person
+from .genre import Genre, GenreDetail
+from .person import Person, PersonDetail

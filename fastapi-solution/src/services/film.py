@@ -6,12 +6,13 @@ from fastapi import Depends
 
 from db.elastic import get_elastic
 
-from models import FilmDetail, es_query
+from models import Film, FilmDetail, es_query
 from services.utils import Service
 
 
 class FilmService(Service):
-    model = FilmDetail
+    model = Film
+    modelDetail = FilmDetail
     es_index = 'movies'
 
     def _get_query_body(self, params: ModelParams):
