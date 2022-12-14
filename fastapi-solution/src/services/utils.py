@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from pydantic import BaseModel
 from uuid import UUID
 
 from aioredis import Redis
@@ -30,7 +31,10 @@ class Service:
         #
         return item
 
-    async def get_list(self,) -> list[FilmDetail | Genre | Person]:
+    async def get_list(
+        self,
+
+    ) -> list[FilmDetail | Genre | Person]:
         # Нужно посмотреть как брать из эластика несколько позиций
         return []
 
@@ -50,3 +54,5 @@ class Service:
     #
     # async def _put_item_to_cache(self, item: Film | Genre | Person):
     #     await self.redis.set(item.uuid, item.json(), expire=CACHE_EXPIRE_IN_SECONDS)
+
+

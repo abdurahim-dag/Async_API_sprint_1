@@ -12,6 +12,7 @@ from services.utils import Service
 
 class FilmService(Service):
     model = FilmDetail
+    es_index = 'movies'
 
 
 @lru_cache()

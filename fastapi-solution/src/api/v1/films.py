@@ -1,6 +1,6 @@
 from http import HTTPStatus
 from uuid import UUID
-from api.v1.query_parameters import FilmQueryParams
+from api.v1.query_parameters import FilmParams
 from fastapi import APIRouter, Depends, HTTPException
 
 from models import FilmDetail, FilmSearch
@@ -13,8 +13,9 @@ router = APIRouter()
 @router.get('/search', response_model=list[FilmSearch])
 async def film_list_details(
         #film_service: FilmService = Depends(get_film_service),
-        common_params: FilmQueryParams = Depends()
+        common_params: FilmParams = Depends()
 ) -> list[FilmSearch]:
+
     for c in common_params:
         print(c)
 
