@@ -1,6 +1,6 @@
 import logging
 
-import aioredis
+import redis.asyncio as redisio
 import uvicorn
 from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
@@ -27,15 +27,14 @@ app = FastAPI(
 @app.on_event('startup')
 async def startup():
     url = f"redis://{config.REDIS_HOST}:{config.REDIS_PORT}"
-    redis.redis = await aioredis.from_url(url,  db=1)
+    redis.redis = await redisio.from_url(url,  db=1)
     elastic.es = AsyncElasticsearch(hosts=[f'{config.ELASTIC_HOST}:{config.ELASTIC_PORT}'])
 
 
 @app.on_event('shutdown')
 async def shutdown():
-    redis.redis.close()
-    await redis.redis.wait_closed()
-    # await elastic.es.close()
+    await redis.redis.close()
+    await elastic.es.close()
 
 
 app.include_router(films.router, prefix='/api/v1/films', tags=['films'])
@@ -54,5 +53,6 @@ if __name__ == '__main__':
     uvicorn.run(
         'main:app',
         host='0.0.0.0',
-        port=8000,
+        port=8080,
+        reload=True,
     )

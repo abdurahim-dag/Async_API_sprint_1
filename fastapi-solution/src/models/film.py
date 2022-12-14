@@ -5,10 +5,10 @@ from models.config import UUIDMixin, OrjsonConfigMixin
 
 class FilmSearchMixin(UUIDMixin):
     title: str
-    imdb_rating: float
+    imdb_rating: float | None
 
 class FilmDetailMixin(FilmSearchMixin):
-    description: str = ''
+    description: str | None = ''
     actor_names: list[str] = []
     writer_names: list[str] = []
     genre: list[Genre] = []

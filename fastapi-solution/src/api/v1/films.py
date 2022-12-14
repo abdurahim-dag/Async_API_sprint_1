@@ -11,13 +11,13 @@ router = APIRouter()
 
 
 @router.get('/search', response_model=list[FilmSearch])
+@cache(6)
 async def film_list_details(
-        #film_service: FilmService = Depends(get_film_service),
+        film_service: FilmService = Depends(get_film_service),
         common_params: FilmParams = Depends()
 ) -> list[FilmSearch]:
-
-    for c in common_params:
-        print(c)
+    films = await film_service.get_list(common_params)
+    return films
 
 
 @router.get('/{film_id}', response_model=FilmDetail)

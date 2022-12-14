@@ -61,7 +61,7 @@ def cache(
                    request.method != "GET":
                     await exec_func(*args, **kwargs)
                 else:
-                    cache_key = request.url.path
+                    cache_key = str(request.url)
                     client = await redis.get_redis()
                     cache_value = await client.get(cache_key)
                     if cache_value:

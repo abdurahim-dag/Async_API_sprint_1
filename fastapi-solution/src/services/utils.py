@@ -1,58 +1,38 @@
-from abc import ABC, abstractmethod
-from pydantic import BaseModel
+from .query_parameters import ModelParams
 from uuid import UUID
-
-from aioredis import Redis
 from elasticsearch import AsyncElasticsearch, NotFoundError
-
-from models import FilmDetail, Genre, Person
-
-
-CACHE_EXPIRE_IN_SECONDS = 60 * 5
+from abc import ABC
+from models import FilmDetail, Genre, Person, FilmSearch
 
 
-#class Service(ABC):
-class Service:
+class Service(ABC):
+    model: None
+    es_index: str
+
     def __init__(self, elastic: AsyncElasticsearch):
         self.elastic = elastic
-        #redis
-
-    # @abstractmethod
-    # def model(*args, **kwargs) -> Film | Genre | Person:
-    #     pass
 
     async def get_by_id(self, item_id: UUID) -> FilmDetail | Genre | Person | None:
-        # item = await self._item_from_cache(item_id)
-        # if not item:
         item = await self._get_item_from_elastic(item_id)
         if not item:
             return None
-        #     await self._put_item_to_cache(item)
-        #
         return item
+
 
     async def get_list(
         self,
+        params: ModelParams
+    ) -> list[FilmDetail | FilmSearch | Genre | Person]:
+        query_body = self._get_query_body(params)
+        docs = await self.elastic.search(index=self.es_index, body=query_body)
+        return [self.model(**doc['_source']) for doc in docs["hits"]["hits"]]
 
-    ) -> list[FilmDetail | Genre | Person]:
-        # Нужно посмотреть как брать из эластика несколько позиций
-        return []
+    def _get_query_body(self, params: ModelParams):
+        pass
 
     async def _get_item_from_elastic(self, item_id: UUID) -> FilmDetail | Genre | Person | None:
         try:
-            doc = await self.elastic.get('movies', item_id)
+            doc = await self.elastic.get(self.es_index, item_id)
         except NotFoundError:
             return None
         return self.model(**doc['_source'])
-
-    # async def _item_from_cache(self, item_id: UUID) -> Film | Genre | Person | None:
-    #     data = await self.redis.get(item_id)
-    #     if not data:
-    #         return None
-    #     item = self.model.parse_raw(data)
-    #     return item
-    #
-    # async def _put_item_to_cache(self, item: Film | Genre | Person):
-    #     await self.redis.set(item.uuid, item.json(), expire=CACHE_EXPIRE_IN_SECONDS)
-
-
