@@ -1,7 +1,7 @@
 aioredis==2.0.1
 elasticsearch[async]==7.9.1
 fastapi==0.87
-redis==4.4.0
+redis[hiredis]==4.4.0
 orjson==3.8.2
 pydantic==1.10.2
 uvicorn==0.20.0

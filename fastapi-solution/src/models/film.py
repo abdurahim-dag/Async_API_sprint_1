@@ -20,5 +20,5 @@ class FilmDetailMixin(FilmSearchMixin):
 class FilmDetail(FilmDetailMixin, OrjsonConfigMixin):
     pass
 
-class FilmSearch(FilmSearchMixin, OrjsonConfigMixin):
+class Film(FilmSearchMixin, OrjsonConfigMixin):
     pass

@@ -59,7 +59,7 @@ def cache(
                 cache_control = request.headers.get("Cache-Control")
                 if cache_control in ("no-store", "no-cache") or \
                    request.method != "GET":
-                    await exec_func(*args, **kwargs)
+                    res = await exec_func(*args, **kwargs)
                 else:
                     cache_key = str(request.url)
                     client = await redis.get_redis()

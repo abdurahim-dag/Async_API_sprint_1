@@ -1,6 +1,13 @@
 import logging
 
 import redis.asyncio as redisio
+from redis.backoff import ExponentialBackoff
+from redis.retry import Retry
+from redis.exceptions import (
+    BusyLoadingError,
+    ConnectionError,
+    TimeoutError
+)
 import uvicorn
 from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
@@ -27,7 +34,11 @@ app = FastAPI(
 @app.on_event('startup')
 async def startup():
     url = f"redis://{config.REDIS_HOST}:{config.REDIS_PORT}"
-    redis.redis = await redisio.from_url(url,  db=1)
+
+    # Run 3 retries with exponential backoff strategy
+    retry = Retry(ExponentialBackoff(), 3)
+    redis.redis = await redisio.from_url(url,  db=1, retry=retry,
+              retry_on_error=[BusyLoadingError, ConnectionError, TimeoutError])
     elastic.es = AsyncElasticsearch(hosts=[f'{config.ELASTIC_HOST}:{config.ELASTIC_PORT}'])
 
 
