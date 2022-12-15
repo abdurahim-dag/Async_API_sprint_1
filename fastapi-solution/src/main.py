@@ -10,10 +10,10 @@ from redis.exceptions import (
 )
 import uvicorn
 from elasticsearch import AsyncElasticsearch
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import ORJSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from api.v1 import films, genres
+from api.v1 import films, genres, persons
 #from api.v1 import films, genres, persons
 from core import config
 from core.logger import LOGGING
@@ -50,7 +50,7 @@ async def shutdown():
 
 app.include_router(films.router, prefix='/api/v1/films', tags=['films'])
 app.include_router(genres.router, prefix='/api/v1/genres', tags=['genres'])
-# app.include_router(persons.router, prefix='/api/v1/persons', tags=['persons'])
+app.include_router(persons.router, prefix='/api/v1/persons', tags=['persons'])
 # app.add_middleware(
 #     CORSMiddleware,
 #     allow_origins=config.origins,

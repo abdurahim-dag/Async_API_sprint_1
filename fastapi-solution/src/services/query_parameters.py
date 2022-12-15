@@ -9,11 +9,11 @@ class OrderEnum(str, Enum):
      DESC: str
 
 class ModelParams(BaseModel, abc.ABC):
-    sort: OrderEnum
-    page_num: int
-    page_size: int
-    filter_genre: UUID
-    query: str
-    ids: list[UUID]
+    sort: OrderEnum | None
+    page_num: int | None
+    page_size: int | None
+    filter_genre: UUID | None
+    query: str | None
+    ids: list[UUID] | None
 
 

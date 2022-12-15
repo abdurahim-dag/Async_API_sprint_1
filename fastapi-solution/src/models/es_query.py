@@ -9,12 +9,15 @@ class MatchFieldQuery(BaseModel):
     fuzziness: str = Field(default='AUTO')
 
 
-class FilmTitleMatch(BaseModel):
+class TitleMatch(BaseModel):
     title: MatchFieldQuery
+
+class FullNameMatch(BaseModel):
+    full_name: MatchFieldQuery
 
 
 class Match(BaseModel):
-    match: FilmTitleMatch
+    match: TitleMatch | FullNameMatch
 
 
 class TermFieldGenre(BaseModel):
@@ -43,6 +46,7 @@ class NestedInner(BaseModel):
     path: str
     query: BodyQueryRef
 
+
 class Nested(BaseModel):
     nested: NestedInner
 
@@ -56,13 +60,17 @@ class BodyQuery(BaseModel):
     bool: QueryBool | None
 
 
-class imbdbOrderEnum(str, Enum):
+class OrderEnum(str, Enum):
     ASC = 'asc'
     DESC = 'desc'
 
 
-class SortFieldFilmRating(BaseModel):
-    imdb_rating: imbdbOrderEnum
+class FieldFilmRating(BaseModel):
+    imdb_rating: OrderEnum
+
+
+class FieldId(BaseModel):
+    id: str
 
 
 def orjson_dumps(v, *, default):
@@ -71,7 +79,7 @@ def orjson_dumps(v, *, default):
 
 class ESBodyQuery(BaseModel):
     query: BodyQuery | None
-    sort: SortFieldFilmRating | None
+    sort: FieldFilmRating | FieldId | None
     size: int = Field(default=0)
     from_: int = Field(default=0, alias='from')
 

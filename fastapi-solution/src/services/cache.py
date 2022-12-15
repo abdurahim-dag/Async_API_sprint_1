@@ -22,12 +22,24 @@ def cache(
             (param for param in signature.parameters.values() if param.annotation is Request),
             None,
         )
+        response_param = next(
+            (param for param in signature.parameters.values() if param.annotation is Response),
+            None,
+        )
         parameters = [*signature.parameters.values()]
         if not request_param:
             parameters.append(
                 inspect.Parameter(
-                    name="_request",
+                    name="request",
                     annotation=Request,
+                    kind=inspect.Parameter.KEYWORD_ONLY,
+                ),
+            )
+        if not response_param:
+            parameters.append(
+                inspect.Parameter(
+                    name="response",
+                    annotation=Response,
                     kind=inspect.Parameter.KEYWORD_ONLY,
                 ),
             )
@@ -45,21 +57,26 @@ def cache(
                     # Если функция синхронная.
                     return await run_in_threadpool(func, *args, **kwargs)
 
-            # Забираем request.
+            # Забираем request и response.
             request: Optional[Request]
-            response: Optional[Request]
-            try:
-                request = kwargs.pop("_request")
-            except KeyError:
-                request = kwargs.get("request")
-            response = kwargs.get("response")
+            response: Optional[Response]
+            # И восстановим kwargs оригинальной функции.
+            kwargs_origin = kwargs.copy()
+            if not request_param:
+                request = kwargs_origin.pop("request")
+            else:
+                request = kwargs_origin.get("request")
+            if not response_param:
+                response = kwargs_origin.pop("response")
+            else:
+                response = kwargs_origin.get("response")
 
             res = None
             if request:
                 cache_control = request.headers.get("Cache-Control")
                 if cache_control in ("no-store", "no-cache") or \
                    request.method != "GET":
-                    res = await exec_func(*args, **kwargs)
+                    res = await exec_func(*args, **kwargs_origin)
                 else:
                     cache_key = str(request.url)
                     client = await redis.get_redis()
@@ -67,13 +84,15 @@ def cache(
                     if cache_value:
                         res = pickle.loads(cache_value)
                     else:
-                        res = await exec_func(*args, **kwargs)
+                        res = await exec_func(*args, **kwargs_origin)
                         await client.set(cache_key, pickle.dumps(res))
-                    if response:
-                        response.headers["Cache-Control"] = f"max-age={ttl}"
 
                     # Чем больше запросов на cache_key, тем дольше он в кэше.
                     await client.expire(cache_key, ttl)
+
+                    if response:
+                        response.headers["Cache-Control"] = f"max-age={ttl}"
+
             return res
         return inner
     return wrapper

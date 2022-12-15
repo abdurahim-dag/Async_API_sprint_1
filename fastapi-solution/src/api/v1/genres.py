@@ -12,14 +12,14 @@ router = APIRouter()
 
 @router.get('/{genre_id}', response_model=GenreDetail)
 @cache(6)
-async def genre_details(genre_id: UUID, genre_service: GenreService = Depends(get_genre_service)) -> GenreDetail:
+async def genre_detail(genre_id: UUID, genre_service: GenreService = Depends(get_genre_service)) -> GenreDetail:
     genre = await genre_service.get_by_id(genre_id)
     if not genre:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='genre not found')
     return genre
 
 
-@router.get('/', response_model=list)
+@router.get('', response_model=list[Genre])
 @cache(6)
 async def genre_list(genre_service: GenreService = Depends(get_genre_service)) -> list[Genre]:
     genre = await genre_service.get_list()
