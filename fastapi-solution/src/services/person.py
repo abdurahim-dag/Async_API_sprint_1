@@ -14,26 +14,32 @@ class PersonService(Service):
     modelDetail = PersonDetail
     es_index = 'persons'
 
-    def _get_search_query_match(self, params: ModelParams) -> es_query.Match:
-        return es_query.Match(
-            match=es_query.FullNameMatch(
-                full_name=es_query.MatchFieldQuery(
-                    query=params.query
-                )
-            )
-        )
+    def _build_search_query(self, params: ModelParams) -> str | None:
+        """Основная функция генерации json по модели тела запроса."""
+        body = self._build_query_body(params=params)
 
-    def _get_search_sort(self, params: ModelParams) -> es_query.FieldId:
-        if params.sort.startswith('-'):
-            order = es_query.OrderEnum.DESC
-        else:
-            order = es_query.OrderEnum.ASC
-        sort = es_query.FieldId(
+        if params.query:
+            if not body.query.bool or not body.query.bool.must:
+                body.query.bool = self._build_query_bool()
+                body.query.bool.must = []
+
+            match_field_query = self._build_query_match_field_query(params.query)
+            full_name = es_query.FullNameField(
+                full_name = match_field_query
+            )
+            match = self._build_query_match(match=full_name)
+
+            body.query.bool.must.append(
+                match
+            )
+
+        return body.json(by_alias=True, exclude_none=True)
+
+    def _build_query_order(self, order: es_query.OrderEnum) -> es_query.FieldId:
+        """Функция генерации модели, для поля сортировки."""
+        return es_query.FieldId(
             id=order
         )
-        return sort
-
-
 
 
 @lru_cache()

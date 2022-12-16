@@ -1,76 +1,123 @@
+"""
+Модуль с описанием моделей используемых в генерации json
+тела запроса для ES.
+Пример используемого запроса представлен в файле es_query_example.json
+Ниже в описаниях к классам указано, где в json расположена модель:
+    <элемент предок в json>
+"""
 from pydantic import BaseModel, Field
 import orjson
 from typing import ForwardRef
 from enum import Enum
 
 
+# Значения сортировки
+class OrderEnum(str, Enum):
+    ASC = 'asc'
+    DESC = 'desc'
+
+
+# Значения фильтрации по id
+class FieldId(BaseModel):
+    id: str
+
+
+# Сортировка поиска
+class FieldFilmRating(BaseModel):
+    """sort: ..."""
+    imdb_rating: OrderEnum
+
+
+# Внутренности, для полей поиска.
 class MatchFieldQuery(BaseModel):
+    """[field_name]: ..."""
+
     query: str
     fuzziness: str = Field(default='AUTO')
 
 
-class TitleMatch(BaseModel):
+# Поле поиска
+class TitleField(BaseModel):
+    """match: ..."""
+
     title: MatchFieldQuery
 
-class FullNameMatch(BaseModel):
+
+# Поле поиска
+class FullNameField(BaseModel):
+    """match: ..."""
+
     full_name: MatchFieldQuery
 
 
+# Поле поиска
+class GenreField(BaseModel):
+    """match: ..."""
+
+    genre_name: MatchFieldQuery = Field(alias='genre.name')
+
+
+# Поле match
 class Match(BaseModel):
-    match: TitleMatch | FullNameMatch
+    """must: ..."""
+    match: TitleField | FullNameField
 
 
+# Внутренние поля, для term
 class TermFieldGenre(BaseModel):
+    """term: ..."""
+
     genre_id: str = Field(alias='genre.id')
 
     class Config:
         allow_population_by_field_name = True
 
 
-class IDSValues(BaseModel):
-    values: list[str] = []
-
-
-class IDS(BaseModel):
-    ids: IDSValues
-
-
+# Поле term
 class Term(BaseModel):
+    """filter: ..."""
+
     term: TermFieldGenre
 
 
-BodyQueryRef = ForwardRef("BodyQuery")
+# Поиск по id в filter
+class IDSValues(BaseModel):
+    """ids: ..."""
+
+    values: list[str] = []
 
 
+# Поиск по id в filter
+class IDS(BaseModel):
+    """filter: ..."""
+    ids: IDSValues
+
+
+QueryRef = ForwardRef("Query")
+
+
+# Поиск по вложенные полям.
 class NestedInner(BaseModel):
+    """nested: ..."""
     path: str
-    query: BodyQueryRef
+    query: QueryRef
 
 
+# Поиск по вложенные полям.
 class Nested(BaseModel):
+    """must: ..."""
     nested: NestedInner
 
 
 class QueryBool(BaseModel):
-    must: list[Match|Nested] | None
+    """bool: ..."""
+    must: list[Match | Nested] | None
     filter: Term | IDS | None
 
 
-class BodyQuery(BaseModel):
+class Query(BaseModel):
+    """query: ..."""
     bool: QueryBool | None
-
-
-class OrderEnum(str, Enum):
-    ASC = 'asc'
-    DESC = 'desc'
-
-
-class FieldFilmRating(BaseModel):
-    imdb_rating: OrderEnum
-
-
-class FieldId(BaseModel):
-    id: str
 
 
 def orjson_dumps(v, *, default):
@@ -78,7 +125,8 @@ def orjson_dumps(v, *, default):
 
 
 class ESBodyQuery(BaseModel):
-    query: BodyQuery | None
+    """Корневой элемент поиска."""
+    query: Query | None
     sort: FieldFilmRating | FieldId | None
     size: int = Field(default=0)
     from_: int = Field(default=0, alias='from')

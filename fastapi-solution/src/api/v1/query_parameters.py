@@ -21,6 +21,7 @@ class CommonParams(ModelParams):
 
 class FilmParams(CommonParams):
     filter_genre: UUID | None = Field(Query(default=None, alias="filter[genre]"))
+    filter_genre_name: str | None = Field(Query(default=None, alias="filter[genre.name]"))
 
 
 class PersonParams(CommonParams):

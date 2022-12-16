@@ -15,7 +15,7 @@ class GenreService(Service):
     modelDetail = GenreDetail
     es_index = 'genres'
 
-    def _get_query_body(self, params: ModelParams = None):
+    def _build_search_query(self, params: ModelParams) -> None:
         return None
 
 
