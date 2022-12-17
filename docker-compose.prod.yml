@@ -23,8 +23,8 @@ services:
     container_name: nginx-movie
     build: nginx
     volumes:
-      - ./nginx/config.d:/etc/nginx/config.d:ro
-      - ./nginx/nginx.config:/etc/nginx/nginx.config:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - app-static:/static
       - app-media:/media
     depends_on:
@@ -47,7 +47,7 @@ services:
         soft: -1
         hard: -1
 
-  pg_to_es:
+  etl:
     env_file: .env.prod
 
   fastapi:

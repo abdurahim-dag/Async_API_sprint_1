@@ -40,7 +40,7 @@ services:
         soft: -1
         hard: -1
 
-  pg_to_es:
+  etl:
     env_file: .env.dev
 
   fastapi:

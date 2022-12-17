@@ -26,10 +26,10 @@ services:
     expose:
       - "9200"
 
-  pg_to_es:
+  etl:
     container_name: etl-movie
     build:
-      context: pg_to_es
+      context: etl
     depends_on:
       - es01
 

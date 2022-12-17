@@ -1,6 +1,8 @@
-from models.config import OrjsonConfigMixin, UUIDMixin
-from pydantic import Field
 from uuid import UUID
+
+from pydantic import Field
+
+from .config import OrjsonConfigMixin, UUIDMixin
 
 
 class Person(UUIDMixin, OrjsonConfigMixin):

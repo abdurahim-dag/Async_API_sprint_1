@@ -5,10 +5,11 @@
 Ниже в описаниях к классам указано, где в json расположена модель:
     <элемент предок в json>
 """
-from pydantic import BaseModel, Field
-import orjson
-from typing import ForwardRef
 from enum import Enum
+from typing import ForwardRef
+
+import orjson
+from pydantic import BaseModel, Field
 
 
 # Значения сортировки

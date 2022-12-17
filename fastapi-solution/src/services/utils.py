@@ -1,9 +1,11 @@
-from .query_parameters import ModelParams
+from abc import ABC
 from typing import Any
 from uuid import UUID
+
 from elasticsearch import AsyncElasticsearch, NotFoundError
-from abc import ABC
-from models import FilmDetail, Genre, Person, Film, GenreDetail, PersonDetail, es_query
+
+from models import es_query, Film, FilmDetail, Genre, GenreDetail, Person, PersonDetail
+from .qparams import ModelParams
 
 
 class Service(ABC):
@@ -25,8 +27,8 @@ class Service(ABC):
 
     async def get_list(
         self,
-        params: ModelParams = None
-    ) -> list[Film | Genre | Person | None]:
+        params: ModelParams | Any = None
+    ) -> list[Film | Genre | PersonDetail | None]:
         """Функция запрашивает список моделей по параметрам запроса."""
         search_query = self.build_search_query(params)
         return await self._get_items_from_elastic(search_query)

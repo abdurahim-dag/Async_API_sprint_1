@@ -1,4 +1,4 @@
-from models.config import UUIDMixin, OrjsonConfigMixin
+from .config import UUIDMixin, OrjsonConfigMixin
 
 
 class Genre(UUIDMixin, OrjsonConfigMixin):

@@ -1,14 +1,19 @@
 import inspect
 import pickle
 from functools import wraps
-from typing import Any, Awaitable, Callable, Optional, Type, TypeVar
-from fastapi.concurrency import run_in_threadpool
+from typing import Callable, Optional
+
 from fastapi import Request, Response
+from fastapi.concurrency import run_in_threadpool
+
 import db.redis as redis
 
 
+CACHE_EXPIRE_IN_SECONDS = 20 * 1
+
+
 def cache(
-        ttl: int = 10,
+        ttl: int = CACHE_EXPIRE_IN_SECONDS,
 ):
     """
     Cache for Operation on Redis.

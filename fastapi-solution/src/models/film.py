@@ -1,6 +1,6 @@
-from models.genre import Genre
-from models.person import Person
-from models.config import UUIDMixin, OrjsonConfigMixin
+from .config import OrjsonConfigMixin, UUIDMixin
+from .genre import Genre
+from .person import Person
 
 
 class Film(UUIDMixin, OrjsonConfigMixin):

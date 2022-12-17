@@ -1,6 +1,7 @@
+from uuid import UUID
+
 import orjson
 from pydantic import BaseModel, Field
-from uuid import UUID
 
 
 class UUIDMixin(BaseModel):

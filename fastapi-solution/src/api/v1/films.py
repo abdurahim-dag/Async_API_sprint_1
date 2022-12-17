@@ -1,11 +1,11 @@
 from http import HTTPStatus
 from uuid import UUID
-from api.v1.query_parameters import FilmParams
-from fastapi import APIRouter, Depends, HTTPException
 
-from models import FilmDetail, Film
-from services import FilmService, get_film_service, cache
+from fastapi import APIRouter, Depends, HTTPException, Query
 
+from models import Film, FilmDetail
+from services import cache, FilmService, get_film_service
+from .qparams import FilmParams
 
 router = APIRouter()
 
@@ -17,12 +17,12 @@ router = APIRouter()
     description='На ней выводятся популярные фильмы, с указанием поля сортировки и жанра.',
     response_description="Список фильмов.",
 )
-@cache(26)
+@cache()
 async def film_list(
         film_service: FilmService = Depends(get_film_service),
-        common_params: FilmParams = Depends(),
+        params: FilmParams = Depends(),
 ) -> list[Film]:
-    films = await film_service.get_list(common_params)
+    films = await film_service.get_list(params)
     return films
 
 @router.get(
@@ -34,12 +34,12 @@ async def film_list(
     """,
     response_description="Список фильмов.",
 )
-@cache(26)
+@cache()
 async def film_list_search(
         film_service: FilmService = Depends(get_film_service),
-        common_params: FilmParams = Depends()
+        params: FilmParams = Depends()
 ) -> list[Film]:
-    films = await film_service.get_list(common_params)
+    films = await film_service.get_list(params)
     return films
 
 
@@ -50,9 +50,9 @@ async def film_list_search(
     description='Детальная информация о фильме.',
     response_description="Фильм с информацией по всем имеющимися полям.",
 )
-@cache(60)
+@cache()
 async def film_detail(
-        film_id: UUID,
+        film_id: UUID = Query(description='ID фильма.'),
         film_service: FilmService = Depends(get_film_service)
 ) -> FilmDetail:
     film = await film_service.get_by_id(film_id)

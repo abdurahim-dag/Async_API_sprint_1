@@ -4,13 +4,13 @@ from elasticsearch import AsyncElasticsearch
 from fastapi import Depends
 
 from db.elastic import get_elastic
-from .query_parameters import ModelParams
-from models import Person, PersonDetail, es_query
+from models import es_query, PersonDetail
 from services.utils import Service
+from .qparams import ModelParams
 
 
 class PersonService(Service):
-    model = Person
+    model = PersonDetail
     modelDetail = PersonDetail
     es_index = 'persons'
 

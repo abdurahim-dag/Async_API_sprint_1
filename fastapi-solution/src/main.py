@@ -1,26 +1,20 @@
-import logging
-
-import redis.asyncio as redisio
+import uvicorn
+from elasticsearch import AsyncElasticsearch
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import ORJSONResponse
+from redis import asyncio as redisio
 from redis.backoff import ExponentialBackoff
-from redis.retry import Retry
 from redis.exceptions import (
     BusyLoadingError,
     ConnectionError,
     TimeoutError
 )
-import uvicorn
-from elasticsearch import AsyncElasticsearch
-from fastapi import FastAPI, Request
-from fastapi.responses import ORJSONResponse
-from fastapi.middleware.cors import CORSMiddleware
+from redis.retry import Retry
+
 from api.v1 import films, genres, persons
-#from api.v1 import films, genres, persons
-from core import config
-from core.logger import LOGGING
-
+from core.config import config
 from db import elastic, redis
-
-import db.redis as redis
 
 
 app = FastAPI(
@@ -37,8 +31,13 @@ async def startup():
 
     # Run 3 retries with exponential backoff strategy
     retry = Retry(ExponentialBackoff(), 3)
-    redis.redis = await redisio.from_url(url,  db=1, retry=retry,
-              retry_on_error=[BusyLoadingError, ConnectionError, TimeoutError])
+    redis.redis = await redisio.from_url(
+        url,
+        db=0,
+        retry=retry,
+        retry_on_error=[BusyLoadingError, ConnectionError, TimeoutError]
+    )
+
     elastic.es = AsyncElasticsearch(hosts=[f'{config.ELASTIC_HOST}:{config.ELASTIC_PORT}'])
 
 
@@ -51,13 +50,13 @@ async def shutdown():
 app.include_router(films.router, prefix='/api/v1/films', tags=['films'])
 app.include_router(genres.router, prefix='/api/v1/genres', tags=['genres'])
 app.include_router(persons.router, prefix='/api/v1/persons', tags=['persons'])
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=config.origins,
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=config.ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 if __name__ == '__main__':
