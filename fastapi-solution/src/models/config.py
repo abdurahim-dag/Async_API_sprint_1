@@ -1,11 +1,11 @@
 import orjson
 from pydantic import BaseModel, Field
-from uuid import UUID, uuid4
+from uuid import UUID
 
 
 class UUIDMixin(BaseModel):
-    #uuid: UUID = Field(default_factory=uuid4)
     id: UUID = Field(alias='uuid')
+
     class Config:
         allow_population_by_field_name = True
 

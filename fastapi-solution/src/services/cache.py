@@ -13,7 +13,7 @@ def cache(
     """
     Cache for Operation on Redis.
     """
-    def wrapper(func: Awaitable):
+    def wrapper(func: Callable):
 
         # Если в сигнатуре функции не объявлен Request.
         # То добавим наш.

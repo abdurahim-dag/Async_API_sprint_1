@@ -50,21 +50,24 @@ class FullNameField(BaseModel):
     full_name: MatchFieldQuery
 
 
-# Поле поиска
-class GenreField(BaseModel):
+# Представление поля name, для модели genre
+class FieldGenreName(BaseModel):
     """match: ..."""
 
     genre_name: MatchFieldQuery = Field(alias='genre.name')
+
+    class Config:
+        allow_population_by_field_name = True
 
 
 # Поле match
 class Match(BaseModel):
     """must: ..."""
-    match: TitleField | FullNameField
+    match: TitleField | FullNameField | FieldGenreName
 
 
-# Внутренние поля, для term
-class TermFieldGenre(BaseModel):
+# Представление поля id, для модели genre
+class FieldGenreID(BaseModel):
     """term: ..."""
 
     genre_id: str = Field(alias='genre.id')
@@ -77,7 +80,7 @@ class TermFieldGenre(BaseModel):
 class Term(BaseModel):
     """filter: ..."""
 
-    term: TermFieldGenre
+    term: FieldGenreID
 
 
 # Поиск по id в filter

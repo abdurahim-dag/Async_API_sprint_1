@@ -14,20 +14,18 @@ class PersonService(Service):
     modelDetail = PersonDetail
     es_index = 'persons'
 
-    def _build_search_query(self, params: ModelParams) -> str | None:
+    def build_search_query(self, params: ModelParams) -> str | None:
         """Основная функция генерации json по модели тела запроса."""
         body = self._build_query_body(params=params)
 
         if params.query:
-            if not body.query.bool or not body.query.bool.must:
-                body.query.bool = self._build_query_bool()
-                body.query.bool.must = []
+            body = self._build_query_bool_must(body)
 
-            match_field_query = self._build_query_match_field_query(params.query)
-            full_name = es_query.FullNameField(
-                full_name = match_field_query
+            match = self._build_query_match(
+                query=params.query,
+                match_field_type=es_query.FullNameField,
+                match_field_name='full_name'
             )
-            match = self._build_query_match(match=full_name)
 
             body.query.bool.must.append(
                 match

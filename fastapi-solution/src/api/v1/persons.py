@@ -1,5 +1,4 @@
 from http import HTTPStatus
-from api.v1.query_parameters import PersonParams
 from uuid import UUID
 from fastapi.responses import RedirectResponse
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -37,7 +36,7 @@ async def person_film(
         person_id: UUID,
         request: Request,
         person_service: PersonService = Depends(get_person_service)
-) -> list[Film]:
+) -> PersonDetail | RedirectResponse:
     person: PersonDetail = await person_service.get_by_id(person_id)
     if not person:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='person not found')
@@ -53,5 +52,3 @@ async def person_film(
         url += query_str
         return RedirectResponse(url)
     return person
-
-

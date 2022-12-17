@@ -5,7 +5,13 @@ from elasticsearch import AsyncElasticsearch, NotFoundError
 from abc import ABC
 from models import FilmDetail, Genre, Person, Film, GenreDetail, PersonDetail, es_query
 
+
 class Service(ABC):
+    """
+    Базовый абстрактный класс сервиса доступа к данным в индексе ES.
+    Реализована логика получения модели по id и по параметрам запроса.
+    В дочерних классах необходима реализация _build_query_order - необходимые поля сортировки.
+    """
     model: None
     modelDetail: None
     es_index: str
@@ -22,7 +28,7 @@ class Service(ABC):
         params: ModelParams = None
     ) -> list[Film | Genre | Person | None]:
         """Функция запрашивает список моделей по параметрам запроса."""
-        search_query = self._build_search_query(params)
+        search_query = self.build_search_query(params)
         return await self._get_items_from_elastic(search_query)
 
     async def _get_item_from_elastic(self, item_id: UUID) -> FilmDetail | GenreDetail | PersonDetail | None:
@@ -41,12 +47,17 @@ class Service(ABC):
             return None
         return [self.model(**doc['_source']) for doc in docs["hits"]["hits"]]
 
-    def _build_search_query(self, params: ModelParams) -> str | None:
+    def build_search_query(self, params: ModelParams) -> str | None:
         """Основная функция генерации json по модели тела запроса."""
         return self._build_query_body(params=params).json(by_alias=True, exclude_none=True)
 
     def _build_query_body(self, params: ModelParams):
-        """Основная функция генерации модели тела запроса."""
+        """Основная функция генерации модели тела запроса.
+        Реализованна базовая востребованная для всех моделей логика:
+            генерации параметров запроса - фильтр по ID.
+        Для работы сортировки необходима реализация _build_query_order,
+        которая должна возвращать поле для сортировки.
+        """
         body = self._build_query_body_()
         query = self._build_query()
         body.query = query
@@ -72,8 +83,9 @@ class Service(ABC):
         body.from_ = params.page_num
         return body
 
-    # Вспомогательные функции, для генерации модели запроса.
+    # Вспомогательные функции, для генерации моделей запроса.
     def _build_query_order(self, order: es_query.OrderEnum) -> Any:
+        """Функция генерации модели, для поля сортировки."""
         pass
 
     def _build_ids_values(self, values: list[str]) -> es_query.IDSValues:
@@ -89,13 +101,25 @@ class Service(ABC):
     def _build_query_body_(self) -> es_query.ESBodyQuery:
         return es_query.ESBodyQuery()
 
-    def _build_query_match_field_query(self, query) -> es_query.MatchFieldQuery:
-        return es_query.MatchFieldQuery(
+    def _build_query_match(
+            self,
+            query: str,
+            match_field_type: Any,
+            match_field_name: str,
+    ) -> es_query.Match:
+        match_field_query = es_query.MatchFieldQuery(
             query=query,
         )
 
-    def _build_query_match(self, match: es_query.TitleField | es_query.FullNameField) -> es_query.Match:
-        return es_query.Match(match=match)
+        match_field = match_field_type(
+            **{
+                match_field_name: match_field_query
+            }
+        )
+
+        return es_query.Match(
+            match=match_field
+        )
 
     def _build_query(self) -> es_query.Query:
         return es_query.Query()
@@ -103,16 +127,51 @@ class Service(ABC):
     def _build_query_bool(self) -> es_query.QueryBool:
         return es_query.QueryBool()
     #
-    def _build_query_term(self, term: es_query.TermFieldGenre) -> es_query.Term:
+    def _build_query_term(
+            self,
+            term_field_type: Any,
+            term_field_name: str,
+            term_field_value: str,
+    ) -> es_query.Term:
+        term_field = term_field_type(
+            **{
+                term_field_name: term_field_value
+            }
+        )
         return es_query.Term(
-            term=term
+            term=term_field
         )
 
-    def _build_query_nested_inner(self, path: str, query: es_query.Query) -> es_query.NestedInner:
-        return es_query.NestedInner(
-            path=path,
-            query=query
-        )
+    def _build_or_get_query_nested(
+            self,
+            path: str,
+            body: es_query.ESBodyQuery,
+    ) -> es_query.Nested:
+        """Функция создания структуры nested поискового запроса ES."""
+        nested = None
+        if body and body.query and body.query.bool and\
+           body.query.bool.must:
+            for el in body.query.bool.must:
+                if isinstance(el, es_query.Nested):
+                    nested = el
 
-    def _build_nested(self, nested: es_query.NestedInner) -> es_query.Nested:
-        return es_query.Nested(nested=nested)
+        if not nested:
+            query = self._build_query()
+            query.bool = self._build_query_bool()
+
+            nested_inner = es_query.NestedInner(
+                path=path,
+                query=query
+            )
+            nested = es_query.Nested(nested=nested_inner)
+        return nested
+
+    def _build_query_bool_must(
+            self,
+            body: es_query.ESBodyQuery
+    ) -> es_query.ESBodyQuery:
+        if not body.query.bool:
+            body.query.bool = self._build_query_bool()
+        if not body.query.bool.must:
+            body.query.bool.must = []
+        return body

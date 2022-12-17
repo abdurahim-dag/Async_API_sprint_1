@@ -15,43 +15,59 @@ class FilmService(Service):
     modelDetail = FilmDetail
     es_index = 'movies'
 
-    def _build_search_query(self, params: ModelParams) -> str | None:
+    def build_search_query(self, params: ModelParams) -> str | None:
         """Основная функция генерации json по модели тела запроса."""
         body = self._build_query_body(params=params)
 
         if params.query:
-            if not body.query.bool or not body.query.bool.must:
-                body.query.bool = self._build_query_bool()
-                body.query.bool.must = []
+            body = self._build_query_bool_must(body)
 
-            match_field_query = self._build_query_match_field_query(params.query)
-            title = es_query.TitleField(
-                title=match_field_query
+            match = self._build_query_match(
+                query=params.query,
+                match_field_type=es_query.TitleField,
+                match_field_name='title'
             )
-            match = self._build_query_match(match=title)
 
             body.query.bool.must.append(
                 match
             )
 
         if params.filter_genre:
-            if not body.query.bool or not body.query.bool.must:
-                body.query.bool = self._build_query_bool()
-                body.query.bool.must = []
+            body = self._build_query_bool_must(body)
 
-            query = self._build_query()
-            query.bool = self._build_query_bool()
-
-            term_field = es_query.TermFieldGenre(
-                genre_id=str(params.filter_genre)
+            nested = self._build_or_get_query_nested(
+                path='genre',
+                body=body,
             )
 
-            query.bool.filter = self._build_query_term(
-                term=term_field
+            term = self._build_query_term(
+                term_field_type=es_query.FieldGenreID,
+                term_field_name='genre_id',
+                term_field_value=str(params.filter_genre)
             )
 
-            nested_inner = self._build_query_nested_inner(path="genre", query=query)
-            nested = self._build_nested(nested=nested_inner)
+            nested.nested.query.bool.filter = term
+
+            body.query.bool.must.append(nested)
+
+        if params.filter_genre_name:
+            body = self._build_query_bool_must(body)
+
+            nested = self._build_or_get_query_nested(
+                path='genre',
+                body=body,
+            )
+
+            match = self._build_query_match(
+                query=str(params.filter_genre_name),
+                match_field_type=es_query.FieldGenreName,
+                match_field_name='genre_name'
+            )
+
+            if nested.nested.query.bool.must:
+                nested.nested.query.bool.must.append(match)
+            else:
+                nested.nested.query.bool.must = [match]
 
             body.query.bool.must.append(nested)
 
