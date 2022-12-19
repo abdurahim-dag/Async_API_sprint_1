@@ -14,6 +14,7 @@ from services import cache
 from services import get_film_service
 from .qparams import FilmParams
 
+
 router = APIRouter()
 
 

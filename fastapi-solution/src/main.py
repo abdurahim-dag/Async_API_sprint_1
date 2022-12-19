@@ -17,6 +17,7 @@ from core.config import config
 from db import elastic
 from db import redis
 
+
 app = FastAPI(
     title=config.PROJECT_NAME,
     docs_url='/api/openapi',

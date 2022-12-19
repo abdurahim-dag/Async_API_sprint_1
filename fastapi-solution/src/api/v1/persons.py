@@ -16,6 +16,7 @@ from services import cache
 from services import get_person_service
 from .qparams import CommonParams
 
+
 router = APIRouter()
 
 

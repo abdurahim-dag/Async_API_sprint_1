@@ -13,6 +13,7 @@ from services import GenreService
 from services import cache
 from services import get_genre_service
 
+
 router = APIRouter()
 
 
