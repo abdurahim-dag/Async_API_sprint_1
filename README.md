@@ -28,6 +28,10 @@ https://github.com/abdurahim-dag/Async_API_sprint_1
 - redis: сервер кэширования на Redis;
 - nginx-movie: прокси сервер на Nginx.
 
+# Сборка docker compose осуществляется из двух файлов:
+   - для prod: docker-compose.yml, docker-compose.prod.yml;
+   - для dev:  docker-compose.yml, docker-compose.override.yml.
+
 # Порядок запуска dev (Windows 10):
 1. docker compose --env-file ./.env.dev up -d --no-deps --build
 2. Если первый запуск, то одной командой в WSL: make windows-dev-post-start
