@@ -7,6 +7,10 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade -r requirements.txt \
     && rm requirements.txt
 
+COPY ./start.sh ./start.sh
+COPY ./gunicorn_conf.py ./gunicorn_conf.py
+RUN chmod +x ./start.sh
+
 
 FROM base as prod
 
@@ -17,9 +21,10 @@ RUN chown $appuser:$appuser -R /app
 
 USER $appuser
 
-COPY ./src .
+COPY --chown=$appuser ./src .
 
-CMD ["uvicorn", "main:app", "--proxy-headers", "--host", "0.0.0.0", "--port", "80"]
+ENTRYPOINT ["/app/start.sh"]
+
 
 FROM base as dev
 WORKDIR /app

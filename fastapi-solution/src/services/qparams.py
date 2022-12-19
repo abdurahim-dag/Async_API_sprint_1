@@ -14,5 +14,6 @@ class ModelParams(BaseModel, abc.ABC):
     page_num: int | None
     page_size: int | None
     filter_genre: UUID | None
+    filter_genre_name: str | None
     query: str | None
     ids: list[UUID] | None

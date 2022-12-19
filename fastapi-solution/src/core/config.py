@@ -30,8 +30,8 @@ def config_build():
         ELASTIC_HOST=os.getenv('ES_HOST'),
         ELASTIC_PORT=int(os.getenv('ES_PORT')),
         BASE_DIR=os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-        ORIGINS = [
-            "http://localhost:80",
+        ORIGINS=[
+            'http://localhost:80',
         ]
     )
 

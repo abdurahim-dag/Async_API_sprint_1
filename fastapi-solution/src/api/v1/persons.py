@@ -15,10 +15,10 @@ router = APIRouter()
     '/search',
     response_model=list[PersonDetail],
     summary='Полнотекстовый поиск по персонам.',
-    description="""
+    description='''
     Полнотекстовый поиск по персонам, по указанному параметру query в запросе.
-    """,
-    response_description="Список персон.",
+    ''',
+    response_description='Список персон.',
 )
 @cache()
 async def film_list_search(
@@ -34,7 +34,7 @@ async def film_list_search(
     response_model=PersonDetail,
     summary='Информация о персоне.',
     description='Детальная информация о персоне.',
-    response_description="Информация со всеми имеющимися полями о персоне.",
+    response_description='Информация со всеми имеющимися полями о персоне.',
 )
 @cache()
 async def person_detail(
@@ -52,7 +52,7 @@ async def person_detail(
     response_model=list[Film],
     summary='Информация о фильмах.',
     description='Детальная информация о фильмах связанных с персоной.',
-    response_description="Фильм с информацией по всем имеющимися полям или сама персона.",
+    response_description='Фильм с информацией по всем имеющимися полям или сама персона.',
 )
 async def person_film(
         request: Request,
@@ -63,14 +63,14 @@ async def person_film(
     if not person:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='person not found')
     ids = [str(film_id) for film_id in person.film_ids]
-    query_str = ""
+    query_str = ''
     for _id in ids:
         q = f"ids={_id}"
         query_str += '&' + q
     if query_str:
         query_str = '?' + query_str[1:]
         app = request.app
-        url = app.url_path_for("film_list_search")
+        url = app.url_path_for('film_list_search')
         url += query_str
         return RedirectResponse(url)
     return person

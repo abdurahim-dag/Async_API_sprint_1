@@ -23,15 +23,17 @@ async def film_list(
         params: FilmParams = Depends(),
 ) -> list[Film]:
     films = await film_service.get_list(params)
+    if not films:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='film not found')
     return films
 
 @router.get(
     '/search',
     response_model=list[Film],
     summary='Полнотекстовый поиск по фильмам.',
-    description="""
+    description='''
     Полнотекстовый поиск фильма, по указанному параметру query в запросе.
-    """,
+    ''',
     response_description="Список фильмов.",
 )
 @cache()
@@ -40,6 +42,8 @@ async def film_list_search(
         params: FilmParams = Depends()
 ) -> list[Film]:
     films = await film_service.get_list(params)
+    if not films:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='film not found')
     return films
 
 
@@ -48,7 +52,7 @@ async def film_list_search(
     response_model=FilmDetail,
     summary='Информация о фильме.',
     description='Детальная информация о фильме.',
-    response_description="Фильм с информацией по всем имеющимися полям.",
+    response_description='Фильм с информацией по всем имеющимися полям.',
 )
 @cache()
 async def film_detail(

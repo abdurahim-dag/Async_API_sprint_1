@@ -14,7 +14,7 @@ router = APIRouter()
     response_model=list[Genre],
     summary='Главная страница жанров.',
     description='На ней выводится полный список жанров.',
-    response_description="Список жанров.",
+    response_description='Список жанров.',
 )
 @cache()
 async def genre_list(genre_service: GenreService = Depends(get_genre_service)) -> list[Genre]:
@@ -29,7 +29,7 @@ async def genre_list(genre_service: GenreService = Depends(get_genre_service)) -
     response_model=GenreDetail,
     summary='Информация о жанре.',
     description='Детальная информация о жанре.',
-    response_description="Жанр со всеми полями.",
+    response_description='Жанр со всеми полями.',
 )
 @cache()
 async def genre_detail(

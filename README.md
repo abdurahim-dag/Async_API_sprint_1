@@ -28,9 +28,20 @@ https://github.com/abdurahim-dag/Async_API_sprint_1
 - redis: сервер кэширования на Redis;
 - nginx-movie: прокси сервер на Nginx.
 
-# Порядок запуска dev (для Windows 10):
+# Порядок запуска dev (Windows 10):
 1. docker compose --env-file ./.env.dev up -d --no-deps --build
 2. Если первый запуск, то одной командой в WSL: make windows-dev-post-start
 3. Если надо сразу перенести данные PG в ES, а не ждать события ETL:
    - Войти в терминал docker etl-movie.
    - Запустить ETL в папке(CWD: /app) - /app/run.sh
+
+# Порядок запуска prod:
+1. make start-prod
+2. Если надо сразу перенести данные PG в ES, а не ждать события ETL:
+   - Войти в терминал docker etl-movie.
+   - Запустить ETL в папке(CWD: /app) - /app/run.sh
+При запуске не забыть указать env-file: env.prod(такой же как env.example).
+
+# В случаи проблем при запуске Docker compose, добавьте --no-deps --build:
+   - docker compose --env-file ./.env.dev up -d --no-deps --build
+   - docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file ./.env.prod up -d --no-deps --build

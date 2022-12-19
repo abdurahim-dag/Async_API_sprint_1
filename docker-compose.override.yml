@@ -12,8 +12,6 @@ services:
     build:
       target: dev
     env_file: .env.dev
-    volumes:
-      - ./app:/app
     ports:
       - "8000:8000"
     restart: unless-stopped
@@ -46,8 +44,6 @@ services:
   fastapi:
     build:
       target: dev
-    volumes:
-      - ./fastapi-solution/src:/app
     env_file: .env.dev
     ports:
       - "8080:8080"

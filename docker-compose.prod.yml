@@ -46,6 +46,7 @@ services:
       memlock:
         soft: -1
         hard: -1
+    restart: always
 
   etl:
     env_file: .env.prod
