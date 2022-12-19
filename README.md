@@ -47,5 +47,6 @@ https://github.com/abdurahim-dag/Async_API_sprint_1
 При запуске не забыть указать env-file: env.prod(такой же как env.example).
 
 # В случаи проблем при запуске Docker compose, добавьте --no-deps --build:
+   - удалить образы и volumes;
    - docker compose --env-file ./.env.dev up -d --no-deps --build
    - docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file ./.env.prod up -d --no-deps --build
