@@ -7,8 +7,6 @@ FROM base as prod
 ARG appuser
 RUN useradd -U $appuser
 
-COPY . .
-
 RUN  mkdir -p /app/media \
      && chown $appuser:$appuser /app/media \
      && mkdir -p /app/static \
@@ -18,6 +16,8 @@ RUN  mkdir -p /app/media \
      && chown $appuser:$appuser -R /app
 
 USER $appuser
+
+COPY --chown=$appuser . .
 
 ENTRYPOINT ["/app/run.sh"]
 

@@ -1,10 +1,17 @@
 from http import HTTPStatus
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter
+from fastapi import Depends
+from fastapi import HTTPException
+from fastapi import Query
 
-from models import Genre, GenreDetail
-from services import cache, GenreService, get_genre_service
+from models import Genre
+from models import GenreDetail
+from models.messages import Genre as Message
+from services import GenreService
+from services import cache
+from services import get_genre_service
 
 router = APIRouter()
 
@@ -17,10 +24,13 @@ router = APIRouter()
     response_description='Список жанров.',
 )
 @cache()
-async def genre_list(genre_service: GenreService = Depends(get_genre_service)) -> list[Genre]:
+async def genre_list(
+        genre_service: GenreService = Depends(get_genre_service),
+        message: Message = Depends()
+) -> list[Genre]:
     genres = await genre_service.get_list()
     if not genres:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='genre not found')
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=message.not_found)
     return genres
 
 
@@ -34,11 +44,12 @@ async def genre_list(genre_service: GenreService = Depends(get_genre_service)) -
 @cache()
 async def genre_detail(
         genre_id: UUID = Query(None, description='ID жанра.'),
-        genre_service: GenreService = Depends(get_genre_service)
+        genre_service: GenreService = Depends(get_genre_service),
+        message: Message = Depends()
 ) -> GenreDetail:
     genre = await genre_service.get_by_id(genre_id)
     if not genre:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='genre not found')
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=message.not_found)
     return genre
 
 

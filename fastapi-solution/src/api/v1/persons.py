@@ -1,11 +1,19 @@
 from http import HTTPStatus
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter
+from fastapi import Depends
+from fastapi import HTTPException
+from fastapi import Query
+from fastapi import Request
 from fastapi.responses import RedirectResponse
 
-from models import Film, PersonDetail
-from services import cache, get_person_service, PersonService
+from models import Film
+from models import PersonDetail
+from models.messages import Person as Message
+from services import PersonService
+from services import cache
+from services import get_person_service
 from .qparams import CommonParams
 
 router = APIRouter()
@@ -23,9 +31,12 @@ router = APIRouter()
 @cache()
 async def film_list_search(
         person_service: PersonService = Depends(get_person_service),
-        params: CommonParams = Depends()
+        params: CommonParams = Depends(),
+        message: Message = Depends()
 ) -> list[PersonDetail]:
     persons = await person_service.get_list(params)
+    if not persons:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=message.not_founds)
     return persons
 
 
@@ -39,11 +50,12 @@ async def film_list_search(
 @cache()
 async def person_detail(
         person_id: UUID = Query(description='ID персоны.'),
-        person_service: PersonService = Depends(get_person_service)
+        person_service: PersonService = Depends(get_person_service),
+        message: Message = Depends()
 ) -> PersonDetail:
     person = await person_service.get_by_id(person_id)
     if not person:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='person not found')
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=message.not_found)
     return person
 
 
@@ -58,10 +70,11 @@ async def person_film(
         request: Request,
         person_id: UUID = Query(description='ID персоны.'),
         person_service: PersonService = Depends(get_person_service),
+        message: Message = Depends()
 ) -> PersonDetail | RedirectResponse:
     person: PersonDetail = await person_service.get_by_id(person_id)
     if not person:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='person not found')
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=message.not_found)
     ids = [str(film_id) for film_id in person.film_ids]
     query_str = ''
     for _id in ids:

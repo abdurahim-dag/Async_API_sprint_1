@@ -1,10 +1,17 @@
 from http import HTTPStatus
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter
+from fastapi import Depends
+from fastapi import HTTPException
+from fastapi import Query
 
-from models import Film, FilmDetail
-from services import cache, FilmService, get_film_service
+from models import Film
+from models import FilmDetail
+from models.messages import Film as Message
+from services import FilmService
+from services import cache
+from services import get_film_service
 from .qparams import FilmParams
 
 router = APIRouter()
@@ -21,10 +28,11 @@ router = APIRouter()
 async def film_list(
         film_service: FilmService = Depends(get_film_service),
         params: FilmParams = Depends(),
+        message: Message = Depends()
 ) -> list[Film]:
     films = await film_service.get_list(params)
     if not films:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='film not found')
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=message.not_founds)
     return films
 
 @router.get(
@@ -39,11 +47,12 @@ async def film_list(
 @cache()
 async def film_list_search(
         film_service: FilmService = Depends(get_film_service),
-        params: FilmParams = Depends()
+        params: FilmParams = Depends(),
+        message: Message = Depends()
 ) -> list[Film]:
     films = await film_service.get_list(params)
     if not films:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='film not found')
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=message.not_founds)
     return films
 
 
@@ -57,9 +66,10 @@ async def film_list_search(
 @cache()
 async def film_detail(
         film_id: UUID = Query(description='ID фильма.'),
-        film_service: FilmService = Depends(get_film_service)
+        film_service: FilmService = Depends(get_film_service),
+        message: Message = Depends()
 ) -> FilmDetail:
     film = await film_service.get_by_id(film_id)
     if not film:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='film not found')
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=message.not_found)
     return film

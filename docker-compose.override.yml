@@ -11,6 +11,8 @@ services:
   app-movie:
     build:
       target: dev
+    volumes:
+      - ./app:/app
     env_file: .env.dev
     ports:
       - "8000:8000"
@@ -44,6 +46,8 @@ services:
   fastapi:
     build:
       target: dev
+    volumes:
+      - ./fastapi-solution/src:/app
     env_file: .env.dev
     ports:
       - "8080:8080"

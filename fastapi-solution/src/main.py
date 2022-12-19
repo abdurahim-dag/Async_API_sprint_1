@@ -5,17 +5,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import ORJSONResponse
 from redis import asyncio as redisio
 from redis.backoff import ExponentialBackoff
-from redis.exceptions import (
-    BusyLoadingError,
-    ConnectionError,
-    TimeoutError
-)
+from redis.exceptions import BusyLoadingError
+from redis.exceptions import ConnectionError
+from redis.exceptions import TimeoutError
 from redis.retry import Retry
 
-from api.v1 import films, genres, persons
+from api.v1 import films
+from api.v1 import genres
+from api.v1 import persons
 from core.config import config
-from db import elastic, redis
-
+from db import elastic
+from db import redis
 
 app = FastAPI(
     title=config.PROJECT_NAME,
@@ -50,6 +50,7 @@ async def shutdown():
 app.include_router(films.router, prefix='/api/v1/films', tags=['films'])
 app.include_router(genres.router, prefix='/api/v1/genres', tags=['genres'])
 app.include_router(persons.router, prefix='/api/v1/persons', tags=['persons'])
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=config.ORIGINS,
@@ -57,7 +58,6 @@ app.add_middleware(
     allow_methods=['*'],
     allow_headers=['*'],
 )
-
 
 if __name__ == '__main__':
     uvicorn.run(
